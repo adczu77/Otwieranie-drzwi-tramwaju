@@ -1,0 +1,127 @@
+*
+PomiarPredkosci:
+  1 - prędkość równa 0
+  0 - prędkość różna od zera
+BlokadaDrzwi:
+  1 - drzwi możliwe do otwarcia
+  0 - drzwi niemożliwe do otwarcia
+KladkaNiepOtwieranie:
+  1 - kładka wysuwa się
+  0 - kładka wsuwa się
+KladkaNiepZamykanie:
+  1 - kładka wysuwa się
+  0 - kładka wsuwa się
+Fotokomorka:
+  1 - światło przecięte
+  0 - śwtiało nieprzecięte
+GuzikWewnetrzny:
+  1 - guzik naciśnięty
+  0 - guzik nienaciśnięty
+GuzikZewnetrzny:
+  1 - guzik naciśnięty
+  0 - guzik nienaciśnięty
+MechanizmOtwieraniaDrzwi:
+  1 - drzwi otwierają się
+  0 - drzwi pozostają nieruchome
+MechanizmZamykaniaDrzwi:
+  1 - drzwi otwierają się
+  0 - drzwi pozostają nieruchome
+SygnalOdjazdu:
+  1 - tramwaj zamyka drzwi i załącza blokadę
+  0 - tramwaj jeszcze stoi
+StanKladki:
+  1 - kładka wysunięta
+  0 - kładka schowana
+StanDrzwi:
+  1 - drzwi otwarte
+  0 - drzwi zamknięte
+GuzikWewNiepel:
+  1 - guzik naciśnięty
+  0 - guzik nienaciśnięty
+GuzikZewNiepel:
+  1 - guzik naciśnięty
+  0 - guzik nienaciśnięty  
+Uruchomienie:
+  1 - przycisk uruchamiajacy mechanizm
+  0 - deaktywacja mechanizmu
+*
+
+WHILE Uruchomienie=TRUE DO
+CASE Stan OF
+  1:
+    MechanizmOtwieraniaDrzwi:=FALSE;
+    MechanizmZamykaniaDrzwi:=FALSE;
+    KladkaNiepOtwieranie:=FALSE;
+    KladkaNiepZamykanie:=FALSE;
+    IF PomiarPredkosci=TRUE AND BlokadaDrzwi=TRUE THEN
+      Stan := 2;
+    END_IF;
+  2:
+    IF GuzikWewnetrzny=TRUE OR GuzikZewnetrzny=TRUE THEN
+      Stan := 3;
+    END_IF;
+    IF GuzikWewNiepel=TRUE OR GuzikZewNiepel=TRUE THEN
+      Stan := 4;
+    END_IF;
+  3:
+    MechanizmOtwieraniaDrzwi := TRUE;
+    IF StanDrzwi=TRUE THEN
+      Stan := 5;
+    END_IF;
+  4:
+    MechanizmOtwieraniaDrzwi := TRUE;
+    KladkaNiepOtwieranie := TRUE;
+    IF StanDrzwi=TRUE AND StanKladki=TRUE THEN
+      Stan := 6;
+    END_IF;
+  5:
+    MechanizmOtwieraniaDrzwi := FALSE;
+    IF GuzikWewNiepel=TRUE OR GuzikZewNiepel=TRUE THEN
+      Stan := 4;
+    END_IF;
+    IF SygnalOdjazdu=TRUE THEN
+      Stan := 7;
+    END_IF;
+  6:
+    MechanizmOtwieraniaDrzwi := FALSE;
+    KladkaNiepOtwieranie := FALSE;
+    IF SygnalOdjazdu=TRUE THEN
+      Stan := 8;
+    END_IF;
+  7:
+    MechanizmZamykaniaDrzwi := TRUE;
+    IF Fotokomorka=FALSE AND PomiarPredkosci=TRUE AND StanKladki=FALSE AND StanDrzwi=FALSE AND BlokadaDrzwi=FALSE THEN
+      Stan := 11;
+    END_IF;
+    IF Fotokomorka=TRUE THEN
+      Stan := 9;
+    END_IF;
+  8:
+    KladkaNiepZamykanie := TRUE;
+    MechanizmZamykaniaDrzwi := TRUE;
+    IF Fotokomorka=FALSE AND PomiarPredkosci=TRUE AND StanKladki=FALSE AND StanDrzwi=FALSE AND BlokadaDrzwi=FALSE THEN
+      Stan := 11;
+    END_IF;
+    IF Fotokomorka=TRUE THEN
+      Stan := 10;
+    END_IF;
+  9:
+    MechanizmOtwieraniaDrzwi := TRUE;
+    MechanizmZamykaniaDrzwi := FALSE;
+    IF StanDrzwi=TRUE THEN
+      Stan := 5;
+    END_IF;
+  10:
+    MechanizmOtwieraniaDrzwi := TRUE;
+    MechanizmZamykaniaDrzwi := FALSE;
+    KladkaNiepOtwieranie := TRUE;
+    KladkaNiepZamykanie := FALSE;
+    IF StanDrzwi=TRUE AND StanKladki=TRUE THEN
+      Stan := 6;
+    END_IF;
+  11:
+    IF PomiarPredkosci=FALSE THEN
+      Stan := 1;
+    END_IF;
+END_CASE;
+END_WHILE;
